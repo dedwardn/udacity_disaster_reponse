@@ -42,7 +42,10 @@ def index():
     # TODO: Below is an example - modify to extract data for your own visuals
     genre_counts = df.groupby('genre').count()['message']
     genre_names = list(genre_counts.index)
-    print('Hello world!')
+    
+    category_ratio =  (df.drop(['id', 'message', 'original', 'genre'], axis=1).sum()/df.shape[0]).sort_values(ascending=False)
+    category_names = category_ratio.index.values
+    
     # create visuals
     # TODO: Below is an example - modify to create your own visuals
     graphs = [
@@ -63,6 +66,27 @@ def index():
                     'title': "Genre"
                 }
             }
+        },
+        {
+            'data' : [
+                Bar(
+                    x=category_names,
+                    y=category_ratio
+                )
+            ],
+            'layout' : {
+                'margin': {'b' : 150}, #problems with automargin not managing to separate axis title and labels 
+                'title' : 'Category frequency in messages',
+                'yaxis' : {
+                    'title' : 'Category frequency [%]'
+                },
+                'xaxis' : {
+                    'title' : 'Category name',
+                    'tickangle' : 45
+                }
+                
+            }
+                    
         }
     ]
     
