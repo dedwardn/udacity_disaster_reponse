@@ -4,8 +4,8 @@ import numpy as np
 from sqlalchemy import create_engine
 
 def load_data(messages_filepath, categories_filepath):
-    messages = pd.read_csv('messages.csv')
-    categories = pd.read_csv('categories.csv')
+    messages = pd.read_csv(messages_filepath)
+    categories = pd.read_csv(categories_filepath)
     df = messages.merge(categories,on='id')
     return df
     
@@ -22,6 +22,8 @@ def clean_data(df):
         categories[column] = categories[column].astype(str).apply(lambda x: x.split('-')[-1])
         # convert column from string to numeric
         categories[column] = pd.to_numeric(categories[column])
+        #Encode all non-binary values (0 or 1) as 1. Assumes error in typing 1.  
+        categories.loc[categories[column] != 0, column] = 1
     # drop the original categories column from `df`
     df.drop(columns=['categories'], inplace=True)
     # concatenate the original dataframe with the new `categories` dataframe
@@ -30,12 +32,12 @@ def clean_data(df):
     
     return df
 
+
 def save_data(df, database_filename):
     engine = create_engine('sqlite:///{}'.format(database_filename))
-    df.to_sql('MessagesCategories', engine, index=False)  
+    df.to_sql('MessagesCategories', engine, if_exists='replace', index=False)  
     
     
-
 def main():
     if len(sys.argv) == 4:
 
